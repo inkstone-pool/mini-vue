@@ -10,7 +10,7 @@ class ReactiveEffect{
         this._fn=fn
     }
     run(){
-        activeEffect=this
+        activeEffect=this//初次执行前暴露实例用于收集,调换顺序响应式收集个寂寞
         return this._fn()
     }
     stop(){
@@ -26,6 +26,9 @@ function cleanupEffect(effect){
         dep.delete(effect)
     })
 }
+/* 
+收集依赖
+*/
 const targeMap =new Map()
 export function track(target,key){
     let depsMap=targeMap.get(target)
@@ -39,10 +42,37 @@ export function track(target,key){
         depsMap.set(key,dep)
     }
     if(!activeEffect)return
-    dep.add(activeEffect)
+    dep.add(activeEffect)//组织依赖结构用于触发
     activeEffect.deps.push(dep)
 }
-export function trigger(target,key){
+/* 
+eg:targeMap{
+    {name:alice,age:18}:{
+        name:[activeEffect1,activeEffect2]
+        age:[activeEffect3,activeEffect4]
+    },
+    {name:Tom,age:6}:{
+        name:[activeEffect1,activeEffect2]
+        age:[activeEffect3,activeEffect4]
+    }
+    step1-----------------------------------------------------------------------
+    activeEffect1{
+        deps:[[activeEffect1,activeEffect2],[activeEffect1,activeEffect2]]
+    }
+    step2-----------------------------------------------------------------------
+    activeEffect1{
+        deps:[[activeEffect1,activeEffect2],[activeEffect1,activeEffect2]]
+    }
+    activeEffect2{
+        deps:[[activeEffect1,activeEffect2],[activeEffect1,activeEffect2]]两个引用地址一致增加与删除会呈现乘法表变化
+    }:ReactiveEffect
+}
+
+*/
+/* 
+触发依赖
+ */
+export function trigger(target,key): void{
     let dep=targeMap.get(target).get(key)
     
     for (const effect of dep) {
@@ -54,7 +84,10 @@ export function trigger(target,key){
     }
 }
 let activeEffect;
-export function effect(fn,options:any={}){
+/* 
+副作用方法包装
+*/
+export function effect(fn,options:any={}): any{
     //fn
     const _effect=new ReactiveEffect(fn)
     extend(_effect,options)
@@ -63,6 +96,9 @@ export function effect(fn,options:any={}){
     runner.effect=_effect
     return runner
 }
+/* 
+清除依赖自己的依赖
+*/
 export function stop(runner){
     runner.effect.stop()
 }

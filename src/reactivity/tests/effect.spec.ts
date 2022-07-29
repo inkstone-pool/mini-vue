@@ -9,6 +9,10 @@ describe('effect', () => {
         effect(()=>{
             nextAge=user.age+1
         })
+        //假如多次使用同一个方法，副作用实例都是独立new的
+        effect(()=>{
+            nextAge=user.age+1
+        })
         expect(nextAge).toBe(11);
         //update
         user.age++;
