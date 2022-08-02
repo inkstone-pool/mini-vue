@@ -1,4 +1,4 @@
-import { readonly } from "../reactive";
+import { readonly,isReadOnly } from "../reactive";
 
 describe('readonly', () => {
     it('readonly get', () => {
@@ -6,6 +6,10 @@ describe('readonly', () => {
         let res =readonly(original)
         expect(res).not.toBe(original)
         expect(res.age).toBe(18)
+        expect(isReadOnly(res)).toBe(true)
+        expect(isReadOnly(original)).toBe(false)
+        expect(isReadOnly(res.detail)).toBe(true)
+        expect(isReadOnly(original.detail)).toBe(false)
     });
     it('readonly set', () => {
         const original ={age:18,detail:{money:180}}

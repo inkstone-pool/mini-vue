@@ -1,12 +1,22 @@
+import { isObject } from "../shared";
 import {track ,trigger } from "./effect";
+import { reactive, ReactiveFlags, readonly } from "./reactive";
 let get=createGetter()
 let set=createSetter()
 let readonlyGet=createGetter(true)
-function createGetter(isReadOnly=false){
+function createGetter(isReadonly=false){
     return function get(target, key) {
         //todo收集依赖
+        if(key===ReactiveFlags.IS_REACTIVE){
+            return !isReadonly
+        }else if(key===ReactiveFlags.IS_READONLY){
+            return isReadonly
+        }
         let res =Reflect.get(target, key)
-        !isReadOnly&&track(target,key)
+        if(isObject(res)){
+            return isReadonly?readonly(res):reactive(res)
+        }
+        !isReadonly&&track(target,key)
         return res
     }
 }

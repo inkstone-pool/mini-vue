@@ -1,5 +1,6 @@
 import { extend } from "../shared";
-
+let activeEffect;
+let shouldTrack;
 class ReactiveEffect{
     private _fn :any;
     deps=[];
@@ -10,8 +11,14 @@ class ReactiveEffect{
         this._fn=fn
     }
     run(){
+        if(!this.active){
+            return this._fn()
+        }
+        shouldTrack=true
         activeEffect=this//初次执行前暴露实例用于收集,调换顺序响应式收集个寂寞
-        return this._fn()
+        let result= this._fn()
+        shouldTrack=false
+        return result
     }
     stop(){
         if(this.active){
@@ -25,12 +32,18 @@ function cleanupEffect(effect){
     effect.deps.forEach((dep:any)=>{
         dep.delete(effect)
     })
+    //上述虽然清除了但是会残留空set结构在数组里
+    effect.deps.length=0
+}
+function isTracking(){
+    return  activeEffect&&shouldTrack!==false
 }
 /* 
 收集依赖
 */
 const targeMap =new Map()
 export function track(target,key){
+    if(!isTracking())return;
     let depsMap=targeMap.get(target)
     if(!depsMap){
         depsMap=new Map()
@@ -41,7 +54,7 @@ export function track(target,key){
         dep=new Set()
         depsMap.set(key,dep)
     }
-    if(!activeEffect)return
+    if(dep.has(activeEffect))return//activeEffect一旦赋值就没有转为空
     dep.add(activeEffect)//组织依赖结构用于触发
     activeEffect.deps.push(dep)
 }
@@ -83,7 +96,7 @@ export function trigger(target,key): void{
         }
     }
 }
-let activeEffect;
+
 /* 
 副作用方法包装
 */
