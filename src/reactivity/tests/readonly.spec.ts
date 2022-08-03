@@ -1,4 +1,4 @@
-import { readonly,isReadOnly } from "../reactive";
+import { readonly,isReadOnly,isProxy } from "../reactive";
 
 describe('readonly', () => {
     it('readonly get', () => {
@@ -9,6 +9,7 @@ describe('readonly', () => {
         expect(isReadOnly(res)).toBe(true)
         expect(isReadOnly(original)).toBe(false)
         expect(isReadOnly(res.detail)).toBe(true)
+        expect(isProxy(res.detail)).toBe(true)
         expect(isReadOnly(original.detail)).toBe(false)
     });
     it('readonly set', () => {
