@@ -35,7 +35,7 @@ function cleanupEffect(effect){
     //上述虽然清除了但是会残留空set结构在数组里
     effect.deps.length=0
 }
-function isTracking(){
+export function isTracking(){
     return  activeEffect&&shouldTrack!==false
 }
 /* 
@@ -54,6 +54,9 @@ export function track(target,key){
         dep=new Set()
         depsMap.set(key,dep)
     }
+    trackEffects(dep)
+}
+export function trackEffects(dep){
     if(dep.has(activeEffect))return//activeEffect一旦赋值就没有转为空
     dep.add(activeEffect)//组织依赖结构用于触发
     activeEffect.deps.push(dep)
@@ -87,7 +90,10 @@ eg:targeMap{
  */
 export function trigger(target,key): void{
     let dep=targeMap.get(target).get(key)
-    
+    triggerEffects(dep)
+ 
+}
+export function triggerEffects(dep){
     for (const effect of dep) {
         if(effect.scheduler){
             effect.scheduler()
@@ -96,7 +102,6 @@ export function trigger(target,key): void{
         }
     }
 }
-
 /* 
 副作用方法包装
 */
