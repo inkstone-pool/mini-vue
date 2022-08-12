@@ -1,36 +1,38 @@
+import { componentPublicHandlers } from "./componentPublicHandlers";
 
 export function createComponentInstance(vnode: any) {
-   const component ={
+  const component = {
     vnode,
-    type:vnode.type
-   }
-   return component
+    type: vnode.type,
+    setupState: {},
+  };
+  return component;
 }
-export function setupComponent(instance){
-    // initProps()
-    //initSlots()
-    setupStateforComponent(instance)
-}
-
-function setupStateforComponent(instance: any) {
-    const Component =instance.type;
-    const {setup}=Component
-    if(setup){
-        const setupResult= setup()
-        handleSetupResult(instance,setupResult)
-    }
+export function setupComponent(instance) {
+  // initProps()
+  //initSlots()
+  setupStatefulComponent(instance);
 }
 
-function handleSetupResult(instance:any,setupResult: any) {
-    if(typeof setupResult =='object'){
-        instance.setupState=setupResult
-    }
-    finishComponentSetup(instance)
+function setupStatefulComponent(instance: any) {
+  const Component = instance.type;
+  instance.proxy = new Proxy({ _instance: instance }, componentPublicHandlers);
+  const { setup } = Component;
+  if (setup) {
+    const setupResult = setup();
+    handleSetupResult(instance, setupResult);
+  }
+}
+
+function handleSetupResult(instance: any, setupResult: any) {
+  if (typeof setupResult == "object") {
+    instance.setupState = setupResult;
+  }
+  finishComponentSetup(instance);
 }
 function finishComponentSetup(instance: any) {
-    const Component =instance.type;
-    if(Component.render){
-        instance.render=Component.render
-    }
+  const Component = instance.type;
+  if (Component.render) {
+    instance.render = Component.render;
+  }
 }
-
