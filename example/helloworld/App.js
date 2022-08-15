@@ -18,7 +18,13 @@ export const App = {
                 }
             },
             [h(Foo, {
-                count: 1
+                count: 1,
+                onAdd(val) {
+                    console.log('onAdd', val)
+                },
+                onAddFoo(val) {
+                    console.log('onAddFoo', val)
+                }
             }), h(
                 'div', {
                     id: 'second',
