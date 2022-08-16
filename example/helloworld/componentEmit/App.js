@@ -1,6 +1,6 @@
 import {
     h
-} from '../../lib/learn-mini-vue.esm.js'
+} from '../../../lib/learn-mini-vue.esm.js'
 import {
     Foo
 } from './Foo.js';
