@@ -1,3 +1,4 @@
+import { isFunction } from '../../shared';
 import { createVNode, Fragment } from '../vnode';
 
 export function renderSlots(
@@ -7,7 +8,7 @@ export function renderSlots(
 ) {
   const slot = slots[defaultSoltName];
   if (slot) {
-    if (typeof slot === 'function') {
+    if (isFunction(slot)) {
       return createVNode(Fragment, {}, slot(slotsProps));
     }
   }

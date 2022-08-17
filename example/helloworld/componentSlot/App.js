@@ -13,6 +13,7 @@ export const App = {
         })]);
     },
     setup() {
+        
         return {
             name: '紫薯怪兽'
         }
