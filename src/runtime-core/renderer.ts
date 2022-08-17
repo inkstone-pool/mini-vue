@@ -1,17 +1,38 @@
 import { ShapeFlags } from '../shared/ShapeFlags';
 import { createComponentInstance, setupComponent } from './component';
+import { Fragment, Text } from './vnode';
 
 export function render(vnode, container) {
   patch(vnode, container);
 }
 function patch(vnode, container) {
-  let { shapeFlag } = vnode;
-  // process component
-  if (shapeFlag & ShapeFlags.ELEMENT) {
-    processElement(vnode, container);
-  } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    processComponent(vnode, container);
+  let { type, shapeFlag } = vnode;
+  switch (type) {
+    case Fragment:
+      processFragment(vnode, container);
+      break;
+    case Text:
+      processText(vnode, container);
+      break;
+    default:
+      if (shapeFlag & ShapeFlags.ELEMENT) {
+        processElement(vnode, container);
+      } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        processComponent(vnode, container);
+      }
+      break;
   }
+}
+function processText(vnode: any, container: any) {
+  const { children } = vnode;
+  const textNode = (vnode.el = document.createTextNode(children));
+  container.append(textNode);
+}
+/* 
+处理render的虚拟dom 返回的type属性为Fragment,只渲染children
+*/
+function processFragment(vnode: any, container: any) {
+  mountChildren(vnode.children, container);
 }
 /* 
 处理render的虚拟dom 返回的type属性为浏览器原生元素(叫组件也不过分吧),进行初始化挂载与更新处理
@@ -20,7 +41,7 @@ function processElement(vnode: any, container: any) {
   mountElement(vnode, container);
 }
 function mountElement(vnode: any, container: any) {
-  const el = (vnode.$el = document.createElement(vnode.type));
+  const el = (vnode.el = document.createElement(vnode.type));
   const { props, children, shapeFlag } = vnode;
   for (const key in props) {
     const isOn = (key) => /^on[A-Z]/.test(key);
@@ -61,5 +82,5 @@ function setupRenderEffect(instance: any, initinalVnode: any, container: any) {
   const subTree = instance.render.call(proxy);
   patch(subTree, container);
   //初始化挂载结束时
-  initinalVnode.$el = subTree.$el;
+  initinalVnode.el = subTree.el;
 }

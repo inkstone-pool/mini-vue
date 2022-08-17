@@ -1,5 +1,5 @@
 import {
-    createApp
+    createApp,
 } from '../../../lib/learn-mini-vue.esm.js';
 import {
     App
