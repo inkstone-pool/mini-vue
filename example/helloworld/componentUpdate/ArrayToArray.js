@@ -110,6 +110,45 @@ const nextChildren5 = [h('div', {
 }, 'B'), h('div', {
     key: 'C'
 }, 'C')]
+
+
+/* 
+diff fixed
+abcdfg->abecfg
+
+*/
+const prevChildren6 = [h('div', {
+    key: 'A'
+}, 'A'), h('div', {
+    key: 'B',
+}, 'B'), h('div', {
+    key: 'C',
+    id: 'c-prev'
+}, 'C'), h('div', {
+    key: 'D'
+}, 'D'), h('div', {
+    key: 'E'
+}, 'E'), h('div', {
+    key: 'F',
+}, 'F'), h('div', {
+    key: 'G'
+}, 'G')]
+const nextChildren6 = [h('div', {
+    key: 'A'
+}, 'A'), h('div', {
+    key: 'B',
+}, 'B'), h('div', {
+    key: 'E'
+}, 'E'), h('div', {
+    key: 'C',
+    id: 'c-next'
+}, 'C'), h('div', {
+    key: 'W',
+}, 'W'), h('div', {
+    key: 'F',
+}, 'F'), h('div', {
+    key: 'G'
+}, 'G')]
 export default {
     name: 'ArrayToArray',
     setup() {
@@ -123,17 +162,19 @@ export default {
         const self = this
         // let leftDiff = self.isChange === true ? h('div', {}, nextChildren) : h('div', {}, prevChildren)
         // let rightDiff = self.isChange === true ? h('div', {}, nextChildren1) : h('div', {}, prevChildren1)
-        // let newLeftDiff = self.isChange === true ? h('div', {}, nextChildren2) : h('div', {}, prevChildren2)
-        // let oldLeftDiff = self.isChange === true ? h('div', {}, nextChildren3) : h('div', {}, prevChildren3)
+        let newLeftDiff = self.isChange === true ? h('div', {}, nextChildren2) : h('div', {}, prevChildren2)
+        let oldLeftDiff = self.isChange === true ? h('div', {}, nextChildren3) : h('div', {}, prevChildren3)
         let delLeftDiff = self.isChange === true ? h('div', {}, nextChildren4) : h('div', {}, prevChildren4)
         let delRightDiff = self.isChange === true ? h('div', {}, nextChildren5) : h('div', {}, prevChildren5)
+        let delCenterDiff = self.isChange === true ? h('div', {}, nextChildren6) : h('div', {}, prevChildren6)
         return h('div', {}, [
             // createTextVNode('leftDiff'), leftDiff,
             // createTextVNode('rightDiff'), rightDiff,
-            // createTextVNode('newLeftDiff'), newLeftDiff,
-            // createTextVNode('oldLeftDiff'), oldLeftDiff
+            createTextVNode('newLeftDiff'), newLeftDiff,
+            createTextVNode('oldLeftDiff'), oldLeftDiff,
             createTextVNode('delLeftDiff'), delLeftDiff,
-            createTextVNode('delRightDiff'), delRightDiff
+            createTextVNode('delRightDiff'), delRightDiff,
+            createTextVNode('delCenterDiff'), delCenterDiff
         ])
 
     }
