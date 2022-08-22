@@ -114,7 +114,7 @@ const nextChildren5 = [h('div', {
 
 /* 
 diff fixed
-abcdfg->abecfg
+abcdezfg->abdcyefg
 
 */
 const prevChildren6 = [h('div', {
@@ -129,6 +129,8 @@ const prevChildren6 = [h('div', {
 }, 'D'), h('div', {
     key: 'E'
 }, 'E'), h('div', {
+    key: 'Z'
+}, 'Z'), h('div', {
     key: 'F',
 }, 'F'), h('div', {
     key: 'G'
@@ -138,13 +140,16 @@ const nextChildren6 = [h('div', {
 }, 'A'), h('div', {
     key: 'B',
 }, 'B'), h('div', {
-    key: 'E'
-}, 'E'), h('div', {
+    key: 'D'
+}, 'D'), h('div', {
     key: 'C',
     id: 'c-next'
 }, 'C'), h('div', {
-    key: 'W',
-}, 'W'), h('div', {
+    key: 'Y',
+    id: 'Y-next'
+}, 'Y'), h('div', {
+    key: 'E',
+}, 'E'), h('div', {
     key: 'F',
 }, 'F'), h('div', {
     key: 'G'

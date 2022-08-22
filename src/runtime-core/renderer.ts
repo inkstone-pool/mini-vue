@@ -1,4 +1,5 @@
 import { effect } from '../reactivity/effect';
+import { increasingNewIndexSequence } from '../shared';
 import { ShapeFlags } from '../shared/ShapeFlags';
 import { createComponentInstance, setupComponent } from './component';
 import { createAppAPI } from './createApp';
@@ -169,6 +170,9 @@ export function createRenderer(renderFlowOptions) {
       const toBePatched = e2 - s2 + 1;
       let hasPatched = 0;
       const keyToNewIndexMap = new Map();
+      const newIndexToOldIndexMap = Array(toBePatched).fill(0);
+      let moved = false;
+      let maxNewIndexSofar = 0;
       for (let i = s2; i <= e2; i++) {
         const nextChild = c2[i];
         nextChild.key && keyToNewIndexMap.set(nextChild.key, i);
@@ -195,9 +199,38 @@ export function createRenderer(renderFlowOptions) {
           //新的找不到相同的
           hostRemove(prevChild.el);
         } else {
+          if (newIndex > maxNewIndexSofar) {
+            maxNewIndexSofar = newIndex;
+          } else {
+            moved = true;
+          }
+          newIndexToOldIndexMap[newIndex - s2] = i + 1;
           //找到了递归对比更新
           patch(prevChild, c2[newIndex], container, parentComponent, null);
           hasPatched++;
+        }
+      }
+
+      const increasingSequence = moved
+        ? increasingNewIndexSequence(newIndexToOldIndexMap)
+        : [];
+      console.log(increasingSequence, 'increasingSequence');
+      let j = increasingSequence.length - 1;
+      for (let i = toBePatched - 1; i >= 0; i--) {
+        const nextIndex = i + s2;
+        const nextChild = c2[nextIndex];
+        const anchor = nextIndex + 1 < l2 ? c2[nextIndex + 1].el : null;
+        if (newIndexToOldIndexMap[i] === 0) {
+          patch(null, nextChild, container, parentComponent, anchor);
+        } else {
+          if (moved) {
+            if (j < 0 || i !== increasingSequence[j]) {
+              //move
+              hostInsert(nextChild.el, container, anchor);
+            } else {
+              j++;
+            }
+          }
         }
       }
       if (hasPatched <= toBePatched) {
