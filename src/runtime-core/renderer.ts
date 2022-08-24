@@ -3,6 +3,7 @@ import { increasingNewIndexSequence } from '../shared';
 import { ShapeFlags } from '../shared/ShapeFlags';
 import { createComponentInstance, setupComponent } from './component';
 import { createAppAPI } from './createApp';
+import { queueJobs } from './scheduler';
 import { Fragment, Text } from './vnode';
 //作为底层向上层提供的个性化渲染器函数
 export function createRenderer(renderFlowOptions) {
@@ -335,30 +336,38 @@ export function createRenderer(renderFlowOptions) {
     container: any,
     anchor: any,
   ) {
-    instance.update = effect(() => {
-      if (!instance.isMounted) {
-        //初始化
-        const { proxy } = instance;
-        //初始化记录总虚拟节点对象
-        const subTree = (instance.subTree = instance.render.call(proxy));
-        patch(null, subTree, container, instance, anchor);
-        //初始化挂载结束时
-        initinalVnode.el = subTree.el;
+    instance.update = effect(
+      () => {
+        if (!instance.isMounted) {
+          //初始化
+          const { proxy } = instance;
+          //初始化记录总虚拟节点对象
+          const subTree = (instance.subTree = instance.render.call(proxy));
+          patch(null, subTree, container, instance, anchor);
+          //初始化挂载结束时
+          initinalVnode.el = subTree.el;
 
-        instance.isMounted = true;
-      } else {
-        //更新
-        const { proxy, next, vnode } = instance;
-        if (next) {
-          next.el = vnode.el;
+          instance.isMounted = true;
+        } else {
+          //更新
+          const { proxy, next, vnode } = instance;
+          if (next) {
+            next.el = vnode.el;
+          }
+          updateComponentPreRender(instance, next);
+          const subTree = instance.render.call(proxy);
+          const preSubTree = instance.subTree;
+          instance.subTree = subTree;
+          patch(preSubTree, subTree, container, instance, anchor);
         }
-        updateComponentPreRender(instance, next);
-        const subTree = instance.render.call(proxy);
-        const preSubTree = instance.subTree;
-        instance.subTree = subTree;
-        patch(preSubTree, subTree, container, instance, anchor);
-      }
-    });
+      },
+      {
+        scheduler() {
+          console.log('scheduler');
+          queueJobs(instance.update)
+        },
+      },
+    );
   }
 
   //保持调用链依赖注入的个性化render函数
