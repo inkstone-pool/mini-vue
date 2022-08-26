@@ -33,12 +33,10 @@ function parseChildren(context, ancestors) {
 function isEnd(context, ancestors) {
   const s = context.source;
   if (s.startsWith('</')) {
-    for (const ancestor of ancestors) {
-      for (let index = ancestors.length-1; index > 0; index--) {
-        const tag = ancestors[index];
-        if (startsWithEndTagOpen(s, tag)) {
-          return true;
-        }
+    for (let index = ancestors.length - 1; index >= 0; index--) {
+      let { tag } = ancestors[index];
+      if (startsWithEndTagOpen(s, tag)) {
+        return true;
       }
     }
   }
@@ -94,7 +92,7 @@ function parseElement(context, ancestors) {
 function startsWithEndTagOpen(source, tag) {
   return (
     source.startsWith('</') &&
-    source.slice(2, 2 + tag.tag.length).toLowerCase() === tag.toLowerCase()
+    source.slice(2, 2 + tag.length).toLowerCase() === tag.toLowerCase()
   );
 }
 function parseTag(context: any, type: TagType) {
@@ -113,7 +111,6 @@ function parseText(context: any): any {
 
   for (const endToken of endTokenList) {
     let findindex = context.source.indexOf(endToken);
-    console.log(findindex);
     if (findindex !== -1 && endIndex > findindex) {
       endIndex = findindex;
     }
