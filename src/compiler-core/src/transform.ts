@@ -1,9 +1,4 @@
 import { NodeTypes } from './ast';
-import {
-  CREATE_ELEMENT_BLOCK,
-  OPEN_BLOCK,
-  TO_DISPLAY_STRING,
-} from './runtimeHelpers';
 
 export function transform(root, options = {}) {
   const context = createTransformContext(root, options);
@@ -12,24 +7,32 @@ export function transform(root, options = {}) {
   root.helpers = [...context.helpers.keys()];
 }
 function createRootCodegen(root) {
-  root.codegenNode = root.children[0];
+  const child = root.children[0];
+  if (child.type === NodeTypes.ELEMENT) {
+    root.codegenNode = child.codegenNode;
+  } else {
+    root.codegenNode = child;
+  }
 }
 function traverseNode(node: any, context) {
+  const exitFns: any = [];
   context.nodeTransforms.forEach((fn) => {
-    fn(node);
+    const onExit = fn(node, context);
+    onExit && exitFns.push(onExit);
   });
   switch (node.type) {
     case NodeTypes.INTERPOLATION:
-      context.helper(TO_DISPLAY_STRING);
       break;
     case NodeTypes.ROOT:
     case NodeTypes.ELEMENT:
-      context.helper(OPEN_BLOCK);
-      context.helper(CREATE_ELEMENT_BLOCK);
       traverseChildren(node, context);
       break;
     default:
       break;
+  }
+  let i = exitFns.length;
+  while (i--) {
+    exitFns[i]();
   }
 }
 function createTransformContext(root: any, options: any) {

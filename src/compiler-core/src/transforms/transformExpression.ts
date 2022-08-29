@@ -1,9 +1,9 @@
 import { NodeTypes } from '../ast';
-import { CTX, helperMapName } from '../runtimeHelpers';
+import { CTX, helperMapName, TO_DISPLAY_STRING } from '../runtimeHelpers';
 
-export function transformExpression(node) {
-  console.log(node);
+export function transformExpression(node, context) {
   if (node.type === NodeTypes.INTERPOLATION) {
+    context.helper(TO_DISPLAY_STRING);
     node.content = processExpression(node.content);
   }
 }

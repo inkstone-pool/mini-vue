@@ -1,3 +1,4 @@
+import { isString } from '../../shared';
 import { NodeTypes } from './ast';
 import {
   helperMapName,
@@ -51,6 +52,9 @@ function genNode(node: any, context: any) {
     case NodeTypes.ELEMENT:
       genElement(node, context);
       break;
+    case NodeTypes.COMPOUND_EXPRESSION:
+      genCompoundExpression(node, context);
+      break;
     default:
       break;
   }
@@ -74,25 +78,32 @@ function genExpression(node: any, context: any) {
 }
 function genElement(node: any, context: any) {
   const { push, helper } = context;
+  const { children, tag, props } = node;
+  console.log(children, 'children');
   push(`(`);
   push(helper(OPEN_BLOCK));
   push('(),');
   push(helper(CREATE_ELEMENT_BLOCK));
   push(`(`);
-  genElementParam(node, context);
+  genNodeList(genNullable([tag, props, children]), context);
   push(`)`);
   push(`)`);
 }
-function genElementParam(node: any, context: any) {
+function genNullable(list) {
+  return list.map((arg) => arg || 'null');
+}
+function genNodeList(nodes, context) {
   const { push } = context;
-  push(`${node.tag}, null,`);
-  node.children.forEach((node, index) => {
-    if (index !== 0) {
-      push(' + ');
+  nodes.forEach((child, index) => {
+    if (isString(child)) {
+      push(child);
+    } else {
+      genNode(child, context);
     }
-    genNode(node, context);
+    if (index < nodes.length - 1) {
+      push(',');
+    }
   });
-  push(',1');
 }
 function createCodegenContext() {
   let context = {
@@ -106,9 +117,14 @@ function createCodegenContext() {
   };
   return context;
 }
-function parenthesesInclude(context, fn) {
+function genCompoundExpression(node: any, context: any) {
+  const { children } = node;
   const { push } = context;
-  push(`(`);
-  fn();
-  push(`)`);
+  children.forEach((child) => {
+    if (isString(child)) {
+      push(child);
+    } else {
+      genNode(child, context);
+    }
+  });
 }
