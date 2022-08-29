@@ -342,7 +342,10 @@ export function createRenderer(renderFlowOptions) {
           //初始化
           const { proxy } = instance;
           //初始化记录总虚拟节点对象
-          const subTree = (instance.subTree = instance.render.call(proxy));
+          const subTree = (instance.subTree = instance.render.call(
+            proxy,
+            proxy,
+          ));
           patch(null, subTree, container, instance, anchor);
           //初始化挂载结束时
           initinalVnode.el = subTree.el;
@@ -355,7 +358,7 @@ export function createRenderer(renderFlowOptions) {
             next.el = vnode.el;
           }
           updateComponentPreRender(instance, next);
-          const subTree = instance.render.call(proxy);
+          const subTree = instance.render.call(proxy, proxy);
           const preSubTree = instance.subTree;
           instance.subTree = subTree;
           patch(preSubTree, subTree, container, instance, anchor);
@@ -363,8 +366,7 @@ export function createRenderer(renderFlowOptions) {
       },
       {
         scheduler() {
-          console.log('scheduler');
-          queueJobs(instance.update)
+          queueJobs(instance.update);
         },
       },
     );

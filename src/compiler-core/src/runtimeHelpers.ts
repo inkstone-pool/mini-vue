@@ -12,5 +12,5 @@ export const helperMapName = {
   [CTX]: 'ctx',
   [CACHE]: 'cache',
   [RENDER]: 'render',
-  [VUE]: 'vue',
+  [VUE]: 'Vue',
 };

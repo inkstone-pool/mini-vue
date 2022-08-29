@@ -79,7 +79,6 @@ function genExpression(node: any, context: any) {
 function genElement(node: any, context: any) {
   const { push, helper } = context;
   const { children, tag, props } = node;
-  console.log(children, 'children');
   push(`(`);
   push(helper(OPEN_BLOCK));
   push('(),');
