@@ -2,12 +2,12 @@ import { extend } from "../shared";
 let activeEffect;
 let shouldTrack;
 export class ReactiveEffect{
-    private _fn :any;
+    private _fn :Function;
     deps=[];
-    active=true;
+    active:boolean=true;
     onStop?:()=>void
     public scheduler:Function|undefined
-    constructor(fn,scheduler?:Function){
+    constructor(fn:Function,scheduler?:Function){
         this._fn=fn
         this.scheduler=scheduler
     }
@@ -22,14 +22,14 @@ export class ReactiveEffect{
         return result
     }
     stop(){
-        if(this.active){
+        if(this.active){//防止重复执行的开关而已，优化层面
             cleanupEffect(this)
             this.onStop&&this.onStop()
             this.active=false
         }
     }
 }
-function cleanupEffect(effect){
+function cleanupEffect(effect:ReactiveEffect){
     effect.deps.forEach((dep:any)=>{
         dep.delete(effect)
     })
@@ -44,7 +44,7 @@ export function isTracking(){
 */
 const targeMap =new Map()
 export function track(target,key){
-    if(!isTracking())return;
+    if(!isTracking())return;//防止在effect执行外的依赖收集，性能和功能层面
     let depsMap=targeMap.get(target)
     if(!depsMap){
         depsMap=new Map()
@@ -60,7 +60,7 @@ export function track(target,key){
 export function trackEffects(dep){
     if(dep.has(activeEffect))return//activeEffect一旦赋值就没有转为空
     dep.add(activeEffect)//组织依赖结构用于触发
-    activeEffect.deps.push(dep)
+    activeEffect.deps.push(dep)//双向收集是通过引用地址给activeEffect提供快速的清除便捷
 }
 /* 
 eg:targeMap{
@@ -89,7 +89,7 @@ eg:targeMap{
 /* 
 触发依赖
  */
-export function trigger(target,key): void{
+export function trigger(target:Object,key:string): void{
     let dep=targeMap.get(target).get(key)
     triggerEffects(dep)
  
@@ -106,7 +106,7 @@ export function triggerEffects(dep){
 /* 
 副作用方法包装
 */
-export function effect(fn,options:any={}): any{
+export function effect(fn,options:{onStop?:()=>any,scheduler?:()=>any}={}): Function{
     //fn
     const _effect=new ReactiveEffect(fn)
     extend(_effect,options)

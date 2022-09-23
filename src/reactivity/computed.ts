@@ -6,18 +6,19 @@ _computedValue:计算缓存值
 _shouldExecute:是否需要执行
 _effect:副作用函数
 */
-class ComputedRefImpl{
-    private _getter: any
-    private _computedValue: any;
+type Getter=()=>any
+class ComputedRefImpl<Getter extends (...args: any) => any>{
+    private _getter: Getter
+    private _computedValue: ReturnType<Getter> | undefined;
     private _shouldExecute: boolean = true;
-    private _effect: any;
-    constructor(getter){
+    private _effect: ReactiveEffect;
+    constructor(getter:Getter){
         this._getter=getter
-        this._effect=new ReactiveEffect(getter,()=>{
+        this._effect=new ReactiveEffect(getter as Function ,()=>{
             this._shouldExecute=true
         })
     }
-    get value() : string {
+    get value() : ReturnType<Getter> | undefined {
         if(this._shouldExecute){
             this._shouldExecute=false
             this._computedValue=this._effect.run()
@@ -25,6 +26,6 @@ class ComputedRefImpl{
         return this._computedValue
     } 
 }
-export function computed(getter){
-    return new ComputedRefImpl(getter)
+export function computed(getter:Getter){
+    return new ComputedRefImpl<Getter>(getter)
 }
