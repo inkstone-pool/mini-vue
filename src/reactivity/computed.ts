@@ -6,7 +6,7 @@ _computedValue:计算缓存值
 _shouldExecute:是否需要执行
 _effect:副作用函数
 */
-type Getter=()=>any
+type Getter=(...args: any) => any
 class ComputedRefImpl<Getter extends (...args: any) => any>{
     private _getter: Getter
     private _computedValue: ReturnType<Getter> | undefined;

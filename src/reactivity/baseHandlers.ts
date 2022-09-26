@@ -5,7 +5,7 @@ let get=createGetter()
 let set=createSetter()
 let readonlyGet=createGetter(true)
 let shallowReadonlyGet=createGetter(true,true)
-function createGetter(isReadonly=false,shallow=false){
+function createGetter(isReadonly:boolean=false,shallow:boolean=false):GetHandler{
     return function get(target, key) {
         //todo收集依赖
         if(key===ReactiveFlags.IS_REACTIVE){
@@ -24,11 +24,11 @@ function createGetter(isReadonly=false,shallow=false){
         return res
     }
 }
-function createSetter(){
+function createSetter():SetHandler{
     return function set(target, key, value) {
         //todo触发依赖
         let res =Reflect.set(target, key, value)
-        trigger(target,key)
+        trigger(target,<string>key)
         return res
     }
 }
@@ -44,3 +44,9 @@ export const readonlyHandlers={
     }
 }
 export const shallowReadonlyHandlers=extend({},readonlyHandlers,{get:shallowReadonlyGet})
+type GetHandler=(target: Object, p: string | symbol, receiver: any) => any
+type SetHandler=(target: Object, p: string | symbol, receiver: any) => any
+export type Handlers={
+    get:GetHandler,
+    set:SetHandler
+}
