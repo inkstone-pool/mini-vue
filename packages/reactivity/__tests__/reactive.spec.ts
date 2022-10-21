@@ -1,4 +1,6 @@
 import {reactive,isReactive,isProxy} from '../src/reactive';
+import { vi, describe, it, expect,test } from 'vitest';
+
 describe('reactive', () => {
     it('happy path', () => {
         const original={foo:1};

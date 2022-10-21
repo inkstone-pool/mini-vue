@@ -1,6 +1,8 @@
 import { effect } from "../src/effect";
 import { reactive } from "../src/reactive";
 import { isRef, proxyRefs, ref, unRef } from '../src/ref';
+import { vi, describe, it, expect,test } from 'vitest';
+
 describe('ref', () => {
     it('happy path', () => {
         const a=ref(1)

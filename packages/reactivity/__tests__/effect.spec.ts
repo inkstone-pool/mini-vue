@@ -1,6 +1,6 @@
 import { reactive } from '../src/reactive';
 import { effect, stop } from '../src/effect';
-import { vi } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
 describe('effect', () => {
   it('happy path', () => {
     const user = reactive({

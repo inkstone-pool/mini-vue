@@ -1,5 +1,5 @@
 import { readonly, isReadOnly, isProxy } from '../src/reactive';
-import { vi } from 'vitest';
+import { vi, describe, it, expect,test } from 'vitest';
 describe('readonly', () => {
   it('readonly get', () => {
     const original = { age: 18, detail: { money: 180 } };
